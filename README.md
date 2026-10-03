@@ -1,177 +1,335 @@
 # SAI-RAG 🧠
 
-> **An AI-powered Retrieval-Augmented Generation (RAG) application for learning, career, course, and project guidance.**
+> **RAG-powered Course, Career & Technology Advisor**
 
-SAI-RAG is a practical **Generative AI / RAG project** built to show how a modern AI application can combine a custom knowledge base, semantic search, vector retrieval, prompt engineering, and an LLM.
+SAI-RAG is a Python + Streamlit **Retrieval-Augmented Generation (RAG)** application. It combines a local FAQ knowledge base, sentence-transformer embeddings, FAISS similarity search, LangChain components, and Gemini.
 
-The main purpose of this project is the **AI engineering workflow**. Course, career, technology, and project guidance are the use cases built on top of that workflow.
+The main engineering focus is the **RAG pipeline**. Course, career, technology, and project guidance are use cases built on top of it.
 
 ---
 
-## 🚀 What is SAI-RAG?
+## 🚀 What the current code actually does
 
-At a high level, SAI-RAG follows this pipeline:
+SAI-RAG has **two answer paths**:
+
+1. **Strong FAQ match:** a close match in the CSV can be answered directly without calling Gemini.
+2. **RAG + Gemini:** otherwise, the application retrieves the top **4** similar documents from FAISS, builds a grounded prompt, and sends it to Gemini.
+
+### Complete execution architecture
 
 ```text
-User Question + Optional Candidate Profile
-                    ↓
-               RAG Pipeline
-                    ↓
-          Semantic Similarity Search
-                    ↓
-        Sentence-Transformer Embeddings
-                    ↓
-                   FAISS
-                    ↓
-          Relevant Context Retrieved
-                    ↓
-                LangChain
-                    ↓
-                Gemini LLM
-                    ↓
-             Grounded AI Response
-                    ↓
-     Learning / Course / Career / Project Guidance
+                         USER
+                           │
+              Question + Optional Profile
+                           │
+                           ▼
+                    ┌─────────────┐
+                    │   app.py    │
+                    │  Streamlit  │
+                    └──────┬──────┘
+                           │
+                    answer_question()
+                           │
+                           ▼
+                 ┌──────────────────┐
+                 │ rag_pipeline.py  │
+                 │   Answer Engine  │
+                 └────────┬─────────┘
+                          │
+                ┌─────────┴─────────┐
+                │                   │
+                ▼                   ▼
+          Strong FAQ Match?      No strong match
+                │                   │
+                ▼                   ▼
+         Direct FAQ Answer     Load FAISS
+         (No Gemini call)          │
+                                   ▼
+                          similarity_search(k=4)
+                                   │
+                                   ▼
+                          Retrieved Documents
+                                   │
+                                   ▼
+                          Grounded Prompt
+                                   │
+                                   ▼
+                              Gemini LLM
+                                   │
+                                   ▼
+                            Final Response
+                                   │
+                                   ▼
+                             Streamlit UI
 ```
 
-### In simple words
-
-**You ask a question → SAI-RAG searches its own knowledge base → retrieves relevant information → gives that context to Gemini → Gemini generates the response.**
-
-This is the core idea of **Retrieval-Augmented Generation**.
-
 ---
 
-## 🧠 Why did I build this?
+## 🏗️ Knowledge-base creation architecture
 
-SAI-RAG is not intended to be only a chatbot.
-
-It is a practical project for learning and implementing the building blocks used in modern AI applications:
-
-- Generative AI
-- LLM integration
-- Retrieval-Augmented Generation (RAG)
-- vector embeddings
-- semantic search
-- FAISS vector retrieval
-- LangChain
-- prompt engineering
-- knowledge-base grounding
-- profile-aware AI responses
-- Streamlit AI application development
-
-The project is structured so each layer can be understood and explained during development or an interview.
-
----
-
-## 🔍 What makes it RAG?
-
-A basic LLM application can look like this:
+The **Create Knowledge Base** button calls `build_vector_store()` from `create_vector_db.py`.
 
 ```text
-User Question → LLM → Answer
+data/sai_faqs.csv
+       │
+       ▼
+   CSVLoader
+       │
+       ▼
+LangChain Documents
+       │
+       ▼
+HuggingFaceEmbeddings
+(all-MiniLM-L6-v2)
+       │
+       ▼
+   Text Vectors
+       │
+       ▼
+FAISS.from_documents()
+       │
+       ▼
+   vectorstore/
 ```
 
-SAI-RAG adds a retrieval layer before generation:
+The CSV `prompt` column is used as the `source_column` by `CSVLoader`.
+
+---
+
+## 🔎 Actual question-processing flow
 
 ```text
 User Question
-      ↓
-Create / use semantic representation
-      ↓
-Search the vector database
-      ↓
-Retrieve relevant knowledge
-      ↓
-Build a grounded prompt
-      ↓
-Send context + question to the LLM
-      ↓
-Generate the final response
+      │
+      ▼
+answer_question()
+      │
+      ▼
+_direct_faq_answer()
+      │
+      ├── Strong match ─────► Return stored FAQ answer
+      │                        (Gemini is not called)
+      │
+      └── No strong match
+               │
+               ▼
+        Load FAISS vector store
+               │
+               ▼
+     Add Candidate Profile if provided
+               │
+               ▼
+      similarity_search(k=4)
+               │
+               ▼
+       Top 4 relevant documents
+               │
+               ▼
+       Build retrieved context
+               │
+               ▼
+        Build grounded prompt
+               │
+               ▼
+             Gemini
+               │
+               ▼
+          Final answer
+               │
+               ▼
+        Answer + source context
+               │
+               ▼
+          Streamlit UI
 ```
-
-That means the application can base its response on information stored in its own knowledge base instead of depending only on the model's general knowledge.
 
 ---
 
-## 🏗️ Architecture
+## 🧠 Direct FAQ matching
 
-### High-level view
+Before FAISS/Gemini, the code checks the CSV directly.
 
 ```text
-                         SAI-RAG
-                            │
-              ┌─────────────┴─────────────┐
-              │                           │
-          AI ENGINE                  USE CASES
-              │                           │
-       ┌──────┼──────┐             ┌──────┼──────┐
-       │      │      │             │      │      │
-      RAG    LLM   Retrieval     Course  Career  Project
-       │      │      │
-       │      │   Semantic Search
-       │      │      │
-       │    Gemini   FAISS
-       │      │      │
-       └── LangChain┘
-              │
-      Sentence-Transformer
-           Embeddings
+Question
+   │
+   ▼
+Normalize text
+   │
+   ▼
+Compare against FAQ prompts
+   │
+   ├── Exact match ─────────► Direct answer
+   │
+   └── Similarity scoring
+            │
+            ▼
+       Score >= 0.78?
+         │       │
+        Yes      No
+         │       │
+         ▼       ▼
+   Direct answer  RAG pipeline
 ```
 
-### End-to-end flow
-
-1. The user enters a question.
-2. The user can optionally provide a candidate profile.
-3. The application prepares the retrieval query.
-4. Sentence-transformer embeddings represent the text semantically.
-5. FAISS searches for similar knowledge.
-6. The most relevant context is retrieved.
-7. LangChain connects the retrieval and LLM workflow.
-8. Gemini receives the retrieved context and the user question.
-9. Prompt instructions guide the response to stay grounded in the supplied context.
-10. The final answer and retrieved source context are displayed in Streamlit.
+The matching logic uses text normalization, `SequenceMatcher`, word overlap, and a **0.78** strong-match threshold.
 
 ---
 
-## 🧩 Technology Stack
+## 👤 Candidate Profile flow
 
-| Layer | Technology | What it does |
+The sidebar accepts an optional profile such as:
+
+> MCA fresher | Python, SQL, JavaScript | interested in cybersecurity | entry-level roles
+
+The profile is added to the retrieval query and also included in the Gemini prompt.
+
+```text
+Question + Candidate Profile
+             │
+             ▼
+       Retrieval Query
+             │
+             ▼
+      FAISS similarity search
+             │
+             ▼
+       Retrieved Context
+             │
+             ├──────────────┐
+             ▼              ▼
+        Gemini Prompt   User Question
+             │              │
+             └──────┬───────┘
+                    ▼
+             Profile-aware Answer
+```
+
+The profile is additional context. It does not replace the knowledge base.
+
+---
+
+## ⚙️ What `rag_pipeline.py` actually contains
+
+```text
+rag_pipeline.py
+      │
+      ├── FAQ CSV loading
+      ├── Text normalization
+      ├── Direct FAQ matching
+      ├── FAQ similarity scoring
+      ├── FAISS loading
+      ├── Semantic retrieval
+      ├── Candidate-profile handling
+      ├── Prompt construction
+      ├── Gemini invocation
+      ├── Retrieved-source return
+      └── Streamlit caching
+```
+
+The current retrieval call is:
+
+```python
+vectorstore.similarity_search(retrieval_query, k=4)
+```
+
+So the current implementation retrieves **four documents**.
+
+---
+
+## 🔬 Gemini generation
+
+When generation is required, the prompt contains:
+
+```text
+Candidate Profile
+       +
+Retrieved Knowledge-Base Context
+       +
+User Question
+       +
+Grounding Instructions
+       │
+       ▼
+     Gemini
+       │
+       ▼
+Generated Answer
+```
+
+The prompt instructs Gemini to use the supplied knowledge-base context for factual claims and avoid inventing unsupported prices, discounts, certificates, placement guarantees, salaries, dates, links, or policies.
+
+---
+
+## 🔄 Automatic FAISS refresh
+
+The current code checks whether the FAQ CSV is newer than the FAISS index.
+
+```text
+Load vector store
+       │
+       ▼
+Compare file modification times
+       │
+       ├── FAQ CSV newer ──► Rebuild FAISS
+       │
+       └── Index current ──► Load existing FAISS
+```
+
+---
+
+## ⚡ Caching
+
+The code uses Streamlit caching for reusable resources:
+
+```text
+Embeddings       → @st.cache_resource
+FAQ rows         → @st.cache_data
+FAISS store      → @st.cache_resource
+Gemini client    → @st.cache_resource
+```
+
+`clear_rag_cache()` is called after creating the knowledge base so updated data can be used.
+
+---
+
+## 🧩 Technology Stack — as implemented
+
+| Layer | Technology | Actual use |
 |---|---|---|
-| UI | **Streamlit** | Runs the web interface |
-| Programming | **Python** | Core application logic |
-| LLM | **Gemini** | Generates natural-language responses |
-| Orchestration | **LangChain** | Connects retrieval, prompting, and generation |
-| Embeddings | **Sentence Transformers** | Converts text into semantic vectors |
-| Vector Search | **FAISS** | Finds similar vectors efficiently |
-| Knowledge Source | **CSV knowledge base** | Stores the information used for grounding |
-| Deployment | **Streamlit Cloud** | Hosts the application |
-
-These technologies are connected as one AI pipeline rather than being isolated libraries.
+| UI | **Streamlit** | Interface, sidebar, form, answers |
+| Language | **Python** | Application logic |
+| Knowledge source | **CSV** | FAQ knowledge base |
+| Loader | **LangChain CSVLoader** | CSV → documents |
+| Embeddings | **HuggingFaceEmbeddings** | Text → vectors |
+| Embedding model | **all-MiniLM-L6-v2** | Semantic representation |
+| Vector search | **FAISS** | Similarity retrieval |
+| Orchestration | **LangChain** | Retrieval and LLM components |
+| LLM | **Gemini / ChatGoogleGenerativeAI** | Generated responses |
+| Caching | **Streamlit cache** | Resource reuse |
+| Deployment | **Streamlit Cloud** | Hosting |
 
 ---
 
-## 📁 Project Structure
+## 📁 Project structure
 
 ```text
 SAI-RAG/
 │
 ├── app.py
-│   └── Streamlit user interface
+│   └── Streamlit UI and user interaction
 │
 ├── config.py
-│   └── API and model configuration
+│   └── API key, model, embedding and path configuration
 │
 ├── create_vector_db.py
-│   └── Loads knowledge-base data, creates embeddings,
-│       and builds the FAISS vector store
+│   └── CSV → Documents → Embeddings → FAISS
 │
 ├── rag_pipeline.py
-│   └── Retrieval, profile-aware prompting, and Gemini generation
+│   └── FAQ match → Retrieval → Prompt → Gemini
 │
 ├── data/
 │   └── sai_faqs.csv
-│       └── Knowledge-base content
+│       └── RAG knowledge base
 │
 ├── .streamlit/
 │   └── config.toml
@@ -184,7 +342,7 @@ SAI-RAG/
 │   └── Python runtime
 │
 ├── .env.example
-│   └── Example environment configuration
+│   └── Example environment variables
 │
 └── README.md
     └── Project documentation
@@ -192,247 +350,148 @@ SAI-RAG/
 
 ---
 
-## 🔬 What does each important file do?
+## 🔬 File-by-file explanation
 
 ### `app.py`
 
-The front end of SAI-RAG.
-
-It provides the:
-- SAI-RAG interface
-- knowledge-base creation control
-- optional candidate profile input
-- question input
-- AI answer display
-- retrieved context display
-
-Streamlit Cloud uses this file as the application entry point.
+The Streamlit front end. It currently provides Create Knowledge Base, FAISS readiness status, Candidate Profile input, the question form, Ask SAI-RAG, final answer display, and retrieved source-context display.
 
 ### `create_vector_db.py`
 
-This file creates the vector database.
+Builds the FAISS vector store:
 
 ```text
-CSV Knowledge Base
-       ↓
-Load Documents
-       ↓
-Create Embeddings
-       ↓
-Store Vectors
-       ↓
-FAISS Index
+CSV → CSVLoader → Documents → Embeddings → FAISS → vectorstore/
 ```
-
-The generated FAISS index becomes the retrieval layer used by the RAG pipeline.
 
 ### `rag_pipeline.py`
 
-This is the main AI engine.
+Runs the answer workflow:
 
-It handles:
-- loading the FAISS vector store
-- semantic retrieval
-- optional profile context
-- prompt construction
-- Gemini generation
-- returning the answer and retrieved sources
-
-This is where the main **RAG workflow** happens.
+```text
+FAQ Match
+   ↓
+FAISS Retrieval
+   ↓
+Context
+   ↓
+Prompt
+   ↓
+Gemini
+   ↓
+Answer + Sources
+```
 
 ### `config.py`
 
-This file centralizes configuration such as:
-- Gemini API key
-- Gemini model configuration
-- embedding model
-- project paths
-- knowledge-base location
+Centralizes the Gemini API key, Gemini model, embedding model, FAQ path, vector-store path, and application directories.
 
 ### `data/sai_faqs.csv`
 
-This is the application's knowledge base.
-
-The text is converted into embeddings so that semantically relevant information can be retrieved by FAISS.
+The local knowledge base used for direct FAQ matching and vector retrieval.
 
 ---
 
-## 👤 Candidate Profile
+## 🧪 Example: one real request
 
-SAI-RAG supports an optional **Candidate Profile** so the same RAG pipeline can produce more contextual guidance.
+Question:
+> **Which technology should I learn next?**
 
-Example:
-
-> MCA fresher | Python, SQL, JavaScript | interested in cybersecurity and data | entry-level roles
-
-The profile can provide context about:
-- education
-- current skills
-- experience level
-- interests
-- target role
-- projects and certifications
-- learning constraints
-
-Conceptually:
+Profile:
+> **MCA fresher | Python | SQL | interested in cybersecurity**
 
 ```text
-Question
-   +
-Candidate Profile
-   ↓
-SAI-RAG Retrieval + Reasoning
-   ↓
-Context-aware AI Response
+Question + Profile
+       │
+       ▼
+     app.py
+       │
+       ▼
+answer_question()
+       │
+       ▼
+FAQ match?
+   │       │
+  Yes      No
+   │       │
+   ▼       ▼
+Answer   FAISS
+           │
+           ▼
+         Top 4
+           │
+           ▼
+     Retrieved Context
+           │
+           ▼
+     Grounded Prompt
+           │
+           ▼
+         Gemini
+           │
+           ▼
+   Profile-aware Answer
 ```
-
-The profile is additional reasoning context; it does not replace retrieval from the knowledge base.
-
----
-
-## 💡 What can I ask SAI-RAG?
-
-### AI / RAG
-
-> What is RAG?
-
-> Why is FAISS used here?
-
-> What are embeddings?
-
-> How does semantic search work?
-
-### Learning
-
-> What should I learn before starting a technology?
-
-> What prerequisites should I complete?
-
-### Course
-
-> What should I verify before buying a course?
-
-> Does this learning path fit my current background?
-
-### Career
-
-> How can I connect a technology to a target role?
-
-> What skill gap should I work on next?
-
-### Project
-
-> What can I build after learning this technology?
-
-> How can I turn learning into portfolio evidence?
-
-These are application use cases. The underlying RAG architecture remains the same.
 
 ---
 
 ## 🛡️ Grounded AI
 
-SAI-RAG follows a simple principle:
+The intended generation pattern is:
 
-> **Retrieve relevant information first, then ask the LLM to reason over that context.**
+```text
+Retrieve
+   ↓
+Ground the prompt with retrieved context
+   ↓
+Generate
+```
 
-The prompt instructs the model not to invent unsupported details about:
-- prices
-- discounts
-- certificates
-- placement guarantees
-- salaries
-- dates
-- links
-- policies
+The project does **not** claim that RAG completely eliminates hallucinations. It demonstrates how retrieval can provide the LLM with application-specific context.
 
-When a requested course-specific fact is not available in the knowledge base, the application is instructed to say:
+If required course-specific or technology-specific information is not available, the prompt instructs the model to say:
 
 > "I don't have that information in the current knowledge base."
 
-This does not guarantee zero hallucinations, but it demonstrates an important RAG engineering technique: **grounding generation in retrieved context**.
-
 ---
 
-## 🎯 The learning journey behind SAI-RAG
-
-The project can be understood as a progression:
+## 🎯 What this project demonstrates
 
 ```text
-RAG Fundamentals
-      ↓
-Document Retrieval
-      ↓
+Python + Streamlit
+        ↓
+Knowledge Base
+        ↓
+Document Loading
+        ↓
 Embeddings
-      ↓
+        ↓
 FAISS Vector Search
-      ↓
-LangChain Integration
-      ↓
-Gemini LLM Integration
-      ↓
+        ↓
+RAG Retrieval
+        ↓
 Prompt Engineering
-      ↓
-Profile-aware Responses
-      ↓
-Course / Career / Project Use Cases
+        ↓
+Gemini LLM
+        ↓
+Grounded Response
+        ↓
+Profile-aware AI Use Case
 ```
 
-This makes the repository easy to explain: each feature is built on top of the previous AI layer.
-
----
-
-## 🧪 Example: what happens internally?
-
-Suppose the user asks:
-
-> "Which technology should I learn next?"
-
-And enters:
-
-> "MCA fresher, Python and SQL, interested in cybersecurity."
-
-SAI-RAG follows this process:
-
-```text
-1. Receive the question
-          ↓
-2. Add optional profile context
-          ↓
-3. Search the knowledge base
-          ↓
-4. Create / use semantic embeddings
-          ↓
-5. Find similar knowledge with FAISS
-          ↓
-6. Retrieve relevant context
-          ↓
-7. Build a grounded prompt
-          ↓
-8. Send prompt + context to Gemini
-          ↓
-9. Generate the response
-          ↓
-10. Show the answer + retrieved context
-```
-
-That is the core **RAG engineering pattern** implemented by the project.
+This is the **AI engineering story** of SAI-RAG.
 
 ---
 
 ## 🆓 Free-only design
 
-SAI-RAG is intentionally configured around a free Gemini API path where practical.
+SAI-RAG is intentionally configured for a **free Gemini API path** where practical. The Gemini model selection is controlled in `config.py`.
 
-The Gemini model selection is controlled in `config.py` so an old `GEMINI_MODEL` Streamlit secret cannot accidentally switch the application to another model.
-
-> **Free does not mean unlimited.** API providers can still impose request, token, or quota limits.
+> **Free does not mean unlimited.** API providers can still impose request, token, and quota limits.
 
 ---
 
-## ☁️ Streamlit Cloud deployment
-
-The application is designed to run on Streamlit Cloud.
+## ☁️ Streamlit Cloud
 
 ### Entry point
 
@@ -448,14 +507,23 @@ In **Streamlit Cloud → Settings → Secrets**:
 GEMINI_API_KEY = "your_gemini_api_key"
 ```
 
-After deployment:
+### First run
 
-1. Open the application.
-2. Click **Create Knowledge Base**.
-3. Wait for the FAISS index to be created.
-4. Optionally enter a candidate profile.
-5. Ask a question.
-6. SAI-RAG retrieves relevant context and generates the response.
+```text
+Deploy
+  ↓
+Open SAI-RAG
+  ↓
+Create Knowledge Base
+  ↓
+FAISS index
+  ↓
+Enter question
+  ↓
+Ask SAI-RAG
+  ↓
+Answer
+```
 
 ---
 
@@ -468,50 +536,33 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
-Set `GEMINI_API_KEY` in your environment before running the application.
-
----
-
-## 🔄 Updating the knowledge base
-
-1. Edit `data/sai_faqs.csv`.
-2. Commit and deploy the updated file.
-3. Open the Streamlit application.
-4. Click **Create Knowledge Base**.
-5. Ask the question again.
-
-The FAISS vector store is regenerated from the updated knowledge base.
+Set `GEMINI_API_KEY` before running.
 
 ---
 
 ## 🧭 Future AI-engineering direction
 
-The current project already demonstrates the core RAG pipeline.
+These are **not current features**; they are possible next steps:
 
-Natural next extensions could include:
-
-- PDF / document upload and ingestion
-- website knowledge ingestion
-- source citations and metadata
+- PDF/document ingestion
+- website ingestion
+- richer source citations
 - conversation memory
 - hybrid retrieval
-- retrieval reranking
+- reranking
 - query classification
-- RAG evaluation and quality metrics
-- advanced document chunking
+- RAG evaluation
+- retrieval-quality metrics
+- advanced chunking
 - AI-generated project roadmaps
-
-These are future extensions, not required for the current implementation.
 
 ---
 
-## 📌 How to explain SAI-RAG in an interview
+## 📌 Interview explanation
 
-A clear technical explanation is:
+> **"I built a Python and Streamlit-based Retrieval-Augmented Generation application. It loads a custom CSV knowledge base, converts documents into embeddings using Sentence Transformers, stores them in FAISS, retrieves the top relevant documents for a query, and passes the retrieved context to Gemini for grounded response generation. I also implemented deterministic FAQ matching to avoid unnecessary LLM calls, candidate-profile-aware retrieval and prompting, caching, and automatic vector-store refresh when the knowledge base changes."**
 
-> **"I built an AI-powered Retrieval-Augmented Generation application that uses sentence-transformer embeddings for semantic representation, FAISS for vector retrieval, LangChain for orchestration, and Gemini for grounded response generation. I then added profile-aware reasoning so the same RAG pipeline can provide contextual learning, course, career, and project guidance."**
-
-That explanation describes the **engineering first** and the use cases second.
+This description is aligned with the **current repository code**.
 
 ---
 
