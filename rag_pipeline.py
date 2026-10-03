@@ -54,14 +54,25 @@ def clear_rag_cache():
     _llm.clear()
 
 
-def answer_question(question: str, k: int = 4):
+def answer_question(
+    question: str,
+    k: int = 4,
+    candidate_profile: str = "",
+):
     validate_settings()
 
     if not question.strip():
         raise ValueError("Question cannot be empty.")
 
     vectorstore = load_vectorstore()
-    docs = vectorstore.similarity_search(question, k=k)
+
+    retrieval_query = question
+    if candidate_profile.strip():
+        retrieval_query = (
+            f"{question}\nCandidate profile: {candidate_profile.strip()}"
+        )
+
+    docs = vectorstore.similarity_search(retrieval_query, k=k)
 
     if not docs:
         return {
@@ -74,17 +85,44 @@ def answer_question(question: str, k: int = 4):
         for i, doc in enumerate(docs, start=1)
     )
 
-    prompt = f"""You are SAI-RAG, an educational question-answering assistant.
+    profile_section = (
+        candidate_profile.strip()
+        if candidate_profile.strip()
+        else "No candidate profile was provided."
+    )
 
-Answer the user's question using ONLY the supplied knowledge-base context.
-If the question is about a course, course topic, course availability, technology,
-project feature, or learning topic, answer from the relevant FAQ information.
-Do not invent courses, syllabus items, prices, dates, policies, links, or guarantees.
+    prompt = f"""You are SAI-RAG, an educational course and technology advisor.
 
-If the supplied context does not contain the answer, say:
+Use ONLY the supplied knowledge-base context for factual claims about courses,
+course content, project features, or information stored by this application.
+
+The user may ask about course buying, what to learn next, future technology,
+prerequisites, or how a technology fits their candidate profile.
+
+For course-buying questions, explain profile fit, prerequisites, what information
+is missing, what should be verified before paying, and possible lower-cost paths
+when supported by the context. Do not invent course-specific facts.
+
+For future-technology questions, personalize the discussion to the candidate
+profile and explain trade-offs, prerequisites, skill overlap, project value, and
+a practical learning path. Do not declare one technology universally best.
+
+If a requested course-specific or technology-specific fact is not in the
+knowledge base, say:
 "I don't have that information in the current knowledge base."
 
-Keep the answer clear and concise.
+Never invent prices, discounts, certificates, placement guarantees, salary
+figures, dates, links, or policies.
+
+Prefer these sections for recommendation-style questions:
+1. Profile fit
+2. What to learn/check
+3. Why it fits or what gap it fills
+4. Before buying
+5. Suggested next step
+
+CANDIDATE PROFILE:
+{profile_section}
 
 KNOWLEDGE-BASE CONTEXT:
 {context}
@@ -102,8 +140,6 @@ USER QUESTION:
         if not quota_error or GEMINI_MODEL == "gemini-3.5-flash-lite":
             raise
 
-        # Free-first fallback: try the lower-cost Flash-Lite model if another
-        # configured Gemini model has exhausted its quota.
         response = _llm("gemini-3.5-flash-lite").invoke(prompt)
 
     content = response.content
