@@ -23,7 +23,8 @@ def _secret(name: str, default: str = "") -> str:
 
 
 GEMINI_API_KEY = _secret("GEMINI_API_KEY")
-GEMINI_MODEL = _secret("GEMINI_MODEL", "gemini-3.8-flash")
+# Flash-Lite is the low-latency, cost-efficient model for this free-first project.
+GEMINI_MODEL = _secret("GEMINI_MODEL", "gemini-3.5-flash-lite")
 EMBEDDING_MODEL = _secret(
     "EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2"
 )
