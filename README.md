@@ -23,6 +23,8 @@ SAI-RAG has **two answer paths**:
 
 ### Complete execution architecture
 
+![Complete SAI-RAG Execution Architecture](docs/architecture.svg)
+
 ```text
                          USER
                            │
