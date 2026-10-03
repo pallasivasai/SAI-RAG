@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1050" height="420" viewBox="0 0 1050 420">
+<rect width="1050" height="420" rx="24" fill="#0b1020"/>
+<text x="50" y="52" fill="#f8fafc" font-family="Arial" font-size="27" font-weight="700">Candidate Profile Flow</text>
+<text x="50" y="80" fill="#94a3b8" font-family="Arial" font-size="15">Profile is additional retrieval and prompt context</text>
+<style>.t{fill:#fff;font-family:Arial;font-weight:700;font-size:16px}.s{fill:#dbeafe;font-family:Arial;font-size:13px}.a{stroke:#94a3b8;stroke-width:3;fill:none;marker-end:url(#m)}</style>
+<defs><marker id="m" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#94a3b8"/></marker></defs>
+<rect x="55" y="145" width="180" height="90" rx="15" fill="#1d4ed8"/><text x="145" y="182" text-anchor="middle" class="t">Question</text><text x="145" y="204" text-anchor="middle" class="s">User input</text>
+<rect x="55" y="275" width="180" height="90" rx="15" fill="#0f766e"/><text x="145" y="312" text-anchor="middle" class="t">Candidate Profile</text><text x="145" y="334" text-anchor="middle" class="s">Optional context</text>
+<path d="M235 190H350" class="a"/><path d="M235 320H310V235H350" class="a"/>
+<rect x="350" y="175" width="205" height="90" rx="15" fill="#4338ca"/><text x="452" y="212" text-anchor="middle" class="t">Retrieval Query</text><text x="452" y="234" text-anchor="middle" class="s">Question + profile</text>
+<path d="M555 220H620" class="a"/>
+<rect x="620" y="175" width="180" height="90" rx="15" fill="#075985"/><text x="710" y="212" text-anchor="middle" class="t">FAISS</text><text x="710" y="234" text-anchor="middle" class="s">Relevant context</text>
+<path d="M800 220H865" class="a"/>
+<rect x="865" y="175" width="130" height="90" rx="15" fill="#5b21b6"/><text x="930" y="212" text-anchor="middle" class="t">Gemini</text><text x="930" y="234" text-anchor="middle" class="s">Prompt context</text>
+</svg>
