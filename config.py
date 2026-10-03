@@ -9,15 +9,28 @@ DATA_DIR = BASE_DIR / "data"
 VECTORSTORE_DIR = BASE_DIR / "vectorstore"
 FAQ_FILE = DATA_DIR / "sai_faqs.csv"
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.8-flash").strip()
-EMBEDDING_MODEL = os.getenv(
+
+def _secret(name: str, default: str = "") -> str:
+    value = os.getenv(name, "").strip()
+    if value:
+        return value
+    try:
+        import streamlit as st
+        value = str(st.secrets.get(name, default)).strip()
+    except Exception:
+        value = default
+    return value
+
+
+GEMINI_API_KEY = _secret("GEMINI_API_KEY")
+GEMINI_MODEL = _secret("GEMINI_MODEL", "gemini-3.8-flash")
+EMBEDDING_MODEL = _secret(
     "EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2"
-).strip()
+)
 
 
 def validate_settings() -> None:
     if not GEMINI_API_KEY:
         raise RuntimeError(
-            "GEMINI_API_KEY is missing. Add it to your .env file before asking questions."
+            "GEMINI_API_KEY is missing. Add it under Streamlit Cloud → Settings → Secrets."
         )
