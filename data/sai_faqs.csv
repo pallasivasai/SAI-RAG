@@ -1,15 +1,26 @@
 prompt,response
-What is this project?,SAI-RAG is an educational question-answering assistant that retrieves relevant information from a local FAQ knowledge base before generating an answer.
+What is this project?,SAI-RAG is a RAG-powered educational assistant that retrieves relevant knowledge-base entries before generating an answer.
 What technology is used?,The project uses Python LangChain FAISS sentence-transformer embeddings Google Gemini and Streamlit.
 What is RAG?,RAG stands for Retrieval-Augmented Generation. It retrieves relevant documents and supplies them as context to a language model before generation.
 What is FAISS?,FAISS is a library for efficient similarity search over dense vectors. In this project it is used as the local vector store.
 What are embeddings?,Embeddings convert text into numerical vectors so the system can compare the meaning of a question with the meaning of knowledge-base entries.
-How does SAI-RAG answer questions?,It embeds the FAQ knowledge base retrieves the most relevant entries for a question and sends that context to Gemini with instructions to answer only from the supplied context.
+How does SAI-RAG answer questions?,It embeds the FAQ knowledge base retrieves the most relevant entries and sends that context to Gemini with instructions to answer from the supplied context.
 Does SAI-RAG answer course-related questions?,Yes. SAI-RAG can answer course and learning questions when the requested information is present in its knowledge base.
-What should I ask about the project?,You can ask about RAG FAISS embeddings LangChain Gemini Streamlit the knowledge base and how the application works.
-Does the current knowledge base list a cybersecurity course?,The current SAI-RAG knowledge base does not list a cybersecurity course. It only answers course-related questions when the relevant course information has been added to the knowledge base.
+What should I ask about the project?,You can ask about RAG FAISS embeddings LangChain Gemini Streamlit courses technologies career learning and the knowledge base.
+Does the current knowledge base list a cybersecurity course?,The current knowledge base does not list a specific cybersecurity course. It can discuss cybersecurity learning when relevant information has been added.
 Can I add course information?,Yes. Add your own course questions and answers to data/sai_faqs.csv and rebuild the FAISS knowledge base.
-What happens when an answer is not in the knowledge base?,The assistant says I don't have that information in the current knowledge base rather than inventing an answer.
+What should I check before buying a course?,Check the syllabus prerequisites hands-on projects assessment method instructor information refund terms certificate claims placement claims and whether the course fills a real skill gap for your target role.
+How can SAI-RAG help with course buying?,It can organize a course-buying decision around candidate fit prerequisites syllabus evidence project quality missing information and what should be verified before payment.
+Should I buy a course just because it says future technology?,No. A future-technology label alone is not enough. Check whether the technology matches your target role existing skills learning path project opportunities and the actual course syllabus.
+Can SAI-RAG recommend a technology for a candidate profile?,Yes. Provide the candidate profile current skills target role experience and interests. SAI-RAG can use those details to explain technology fit trade-offs prerequisites and a learning path.
+How should I choose my next technology?,Start from the target role and current skills then identify the smallest useful skill gap. Consider technologies that build on existing knowledge and can be demonstrated through projects.
+What technologies can be considered for a software career?,Common technology areas include software development data engineering cloud DevOps cybersecurity databases AI and machine learning. The right choice depends on the candidate profile and target role.
+Is there one universally best future technology?,No. Technology choice should depend on the candidate profile target role existing foundation learning time and the evidence available for the specific course or technology.
+How should a fresher choose a technology?,A fresher can start with a strong foundation and one role-aligned specialization rather than trying to learn many unrelated technologies at once.
+How should an experienced candidate choose a course?,An experienced candidate should compare the course against existing skills identify the missing capability and verify whether the projects or assessments demonstrate that capability.
+Can SAI-RAG guarantee a job after a course?,No. It should not promise employment salary or placement outcomes.
+What happens when an answer is not in the knowledge base?,The assistant says I don't have that information in the current knowledge base rather than inventing a course-specific fact.
 Why does the first question take longer?,The first request can take longer because the embedding model and language model need to initialize. They are cached afterward so subsequent questions can be faster.
 Can I deploy this project?,Yes. The Streamlit application can be deployed after configuring the Gemini API key as a secret.
 Is the Streamlit configuration folder required?,The .streamlit folder contains Streamlit configuration for this project and is intentionally kept in the repository.
+Is SAI-RAG free-only?,Yes. The application is configured to use the free Gemini model path and does not intentionally switch models through Streamlit Secrets. Free-tier quotas still apply.
