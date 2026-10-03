@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="380" viewBox="0 0 1000 380">
+<rect width="1000" height="380" rx="24" fill="#0b1020"/>
+<text x="50" y="52" fill="#f8fafc" font-family="Arial" font-size="27" font-weight="700">Automatic FAISS Refresh</text>
+<text x="50" y="80" fill="#94a3b8" font-family="Arial" font-size="15">Runtime check implemented in load_vectorstore()</text>
+<style>.t{fill:#fff;font-family:Arial;font-weight:700;font-size:16px}.s{fill:#dbeafe;font-family:Arial;font-size:13px}.a{stroke:#94a3b8;stroke-width:3;fill:none;marker-end:url(#m)}</style>
+<defs><marker id="m" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#94a3b8"/></marker></defs>
+<rect x="55" y="145" width="180" height="90" rx="15" fill="#334155"/><text x="145" y="182" text-anchor="middle" class="t">Load FAISS</text><text x="145" y="204" text-anchor="middle" class="s">vectorstore/</text>
+<path d="M235 190H300" class="a"/>
+<polygon points="395,140 470,190 395,240 320,190" fill="#7c2d12" stroke="#fb923c" stroke-width="2"/><text x="395" y="185" text-anchor="middle" class="t">CSV newer?</text><text x="395" y="207" text-anchor="middle" class="s">than index.faiss</text>
+<path d="M470 190H545" class="a"/><text x="485" y="173" fill="#fca5a5" font-family="Arial" font-size="13">YES</text>
+<rect x="545" y="145" width="180" height="90" rx="15" fill="#0f766e"/><text x="635" y="182" text-anchor="middle" class="t">Rebuild</text><text x="635" y="204" text-anchor="middle" class="s">CSV → Embeddings → FAISS</text>
+<path d="M395 240V300H820" class="a"/><text x="420" y="283" fill="#86efac" font-family="Arial" font-size="13">NO</text>
+<rect x="820" y="145" width="125" height="90" rx="15" fill="#0369a1"/><text x="882" y="182" text-anchor="middle" class="t">Load</text><text x="882" y="204" text-anchor="middle" class="s">existing index</text>
+</svg>
