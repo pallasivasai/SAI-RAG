@@ -1,3 +1,4 @@
+import streamlit as st
 from langchain_community.vectorstores import FAISS
 
 from config import (
@@ -9,6 +10,7 @@ from config import (
 )
 
 
+@st.cache_resource(show_spinner=False)
 def _embeddings():
     from langchain_huggingface import HuggingFaceEmbeddings
 
@@ -19,6 +21,7 @@ def _embeddings():
     )
 
 
+@st.cache_resource(show_spinner=False)
 def load_vectorstore():
     if not VECTORSTORE_DIR.exists():
         raise FileNotFoundError(
@@ -32,53 +35,65 @@ def load_vectorstore():
     )
 
 
+@st.cache_resource(show_spinner=False)
+def _llm():
+    from langchain_google_genai import ChatGoogleGenerativeAI
+
+    validate_settings()
+
+    return ChatGoogleGenerativeAI(
+        model=GEMINI_MODEL,
+        google_api_key=GEMINI_API_KEY,
+        temperature=0.1,
+    )
+
+
+def clear_rag_cache():
+    _embeddings.clear()
+    load_vectorstore.clear()
+    _llm.clear()
+
+
 def answer_question(question: str, k: int = 4):
     validate_settings()
 
     if not question.strip():
         raise ValueError("Question cannot be empty.")
 
-    from langchain_google_genai import ChatGoogleGenerativeAI
-    from langchain_core.prompts import ChatPromptTemplate
-
     vectorstore = load_vectorstore()
     docs = vectorstore.similarity_search(question, k=k)
 
     if not docs:
-        return {"answer": "I don't know.", "sources": []}
+        return {
+            "answer": "I don't have that information in the current knowledge base.",
+            "sources": [],
+        }
 
     context = "\n\n".join(
         f"FAQ {i}:\n{doc.page_content}"
         for i, doc in enumerate(docs, start=1)
     )
 
-    prompt = ChatPromptTemplate.from_messages(
-        [
-            (
-                "system",
-                """You are SAI-RAG, an educational knowledge-base assistant.
-Answer using only the supplied context.
-Do not invent facts, prices, policies, dates, links, or guarantees.
-When the answer is not supported by the context, say exactly: I don't know.
-Keep the answer clear and useful.
+    prompt = f"""You are SAI-RAG, an educational question-answering assistant.
 
-CONTEXT:
-{context}""",
-            ),
-            ("human", "{question}"),
-        ]
-    )
+Answer the user's question using ONLY the supplied knowledge-base context.
+If the question is about a course, course topic, course availability, technology,
+project feature, or learning topic, answer from the relevant FAQ information.
+Do not invent courses, syllabus items, prices, dates, policies, links, or guarantees.
 
-    llm = ChatGoogleGenerativeAI(
-        model=GEMINI_MODEL,
-        google_api_key=GEMINI_API_KEY,
-        temperature=0.1,
-    )
+If the supplied context does not contain the answer, say:
+"I don't have that information in the current knowledge base."
 
-    response = llm.invoke(
-        prompt.format_messages(context=context, question=question)
-    )
+Keep the answer clear and concise.
 
+KNOWLEDGE-BASE CONTEXT:
+{context}
+
+USER QUESTION:
+{question}
+"""
+
+    response = _llm().invoke(prompt)
     content = response.content
     answer = content if isinstance(content, str) else str(content)
 
