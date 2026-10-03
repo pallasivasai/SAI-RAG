@@ -121,6 +121,20 @@ def clear_rag_cache():
     _llm.clear()
 
 
+def _needs_personalized_reasoning(question: str, candidate_profile: str) -> bool:
+    if not candidate_profile.strip():
+        return False
+
+    triggers = (
+        "should i", "should i buy", "worth", "which", "what should",
+        "recommend", "suggest", "best for me", "fit me", "for my profile",
+        "next technology", "learn next", "career", "future", "roadmap",
+        "course", "technology", "tech", "role"
+    )
+    lowered = question.lower()
+    return any(trigger in lowered for trigger in triggers)
+
+
 def answer_question(
     question: str,
     k: int = 4,
@@ -134,7 +148,7 @@ def answer_question(
     # Exact/near-exact FAQ questions do not need Gemini. This makes common
     # course/project questions fast and avoids consuming free-tier requests.
     direct_answer = _direct_faq_answer(question)
-    if direct_answer:
+    if direct_answer and not _needs_personalized_reasoning(question, candidate_profile):
         return direct_answer
 
     vectorstore = load_vectorstore()
@@ -170,7 +184,24 @@ Use ONLY the supplied knowledge-base context for factual claims about courses,
 course content, project features, or information stored by this application.
 
 The user may ask about course buying, what to learn next, future technology,
-prerequisites, or how a technology fits their candidate profile.
+prerequisites, career direction, or how a technology fits their candidate profile.
+
+Treat the candidate profile as a real decision context. Extract the user's
+current foundation, transferable skills, target role, experience level,
+projects/certifications, interests, constraints, and obvious skill gaps.
+
+For personalized questions, do not give a generic internet-style list. Connect
+the answer to the profile, explain what is already strong, identify the missing
+capability, and then present a small number of practical learning paths.
+Explain what each path builds on, what prerequisite it needs, what project could
+demonstrate it, and what evidence the candidate should look for before paying
+for a course.
+
+Be creative in presentation while staying factual: use concise headings,
+decision trees, "keep / add / avoid for now" guidance, mini roadmaps, project
+ideas, or a 30/60/90-day learning sequence when the context supports it.
+Do not invent facts about a course, employer, market, salary, certification,
+placement, or technology. Do not claim that one path is universally best.
 
 For course-buying questions, explain profile fit, prerequisites, what information
 is missing, what should be verified before paying, and possible lower-cost paths
@@ -191,11 +222,18 @@ Never invent prices, discounts, certificates, placement guarantees, salary
 figures, dates, links, or policies.
 
 Prefer these sections for recommendation-style questions:
-1. Profile fit
-2. What to learn/check
-3. Why it fits or what gap it fills
-4. Before buying
-5. Suggested next step
+1. What I understand about your profile
+2. Your current advantage
+3. The skill gap to solve
+4. Possible paths (with trade-offs)
+5. Course-buying checks, if relevant
+6. Practical next step
+
+If the profile is broad or mixed, preserve that breadth and explain how the
+skills can connect instead of forcing the candidate into a single identity.
+If the user is a fresher, prioritize foundations, demonstrable projects and
+role alignment. If the user has relevant experience, focus on the next
+capability that compounds their existing work.
 
 CANDIDATE PROFILE:
 {profile_section}
