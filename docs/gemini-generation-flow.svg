@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1050" height="400" viewBox="0 0 1050 400">
+<rect width="1050" height="400" rx="24" fill="#0b1020"/>
+<text x="50" y="52" fill="#f8fafc" font-family="Arial" font-size="27" font-weight="700">Gemini Generation Flow</text>
+<text x="50" y="80" fill="#94a3b8" font-family="Arial" font-size="15">Generation happens after retrieval when no strong direct FAQ match exists</text>
+<style>.t{fill:#fff;font-family:Arial;font-weight:700;font-size:16px}.s{fill:#dbeafe;font-family:Arial;font-size:13px}.a{stroke:#94a3b8;stroke-width:3;fill:none;marker-end:url(#m)}</style>
+<defs><marker id="m" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#94a3b8"/></marker></defs>
+<rect x="45" y="145" width="190" height="95" rx="15" fill="#075985"/><text x="140" y="183" text-anchor="middle" class="t">Retrieved Context</text><text x="140" y="205" text-anchor="middle" class="s">Top 4 documents</text>
+<path d="M235 192H300" class="a"/>
+<rect x="300" y="145" width="190" height="95" rx="15" fill="#4338ca"/><text x="395" y="183" text-anchor="middle" class="t">Prompt</text><text x="395" y="205" text-anchor="middle" class="s">Context + profile + question</text>
+<path d="M490 192H555" class="a"/>
+<rect x="555" y="145" width="190" height="95" rx="15" fill="#6d28d9"/><text x="650" y="183" text-anchor="middle" class="t">Gemini</text><text x="650" y="205" text-anchor="middle" class="s">ChatGoogleGenerativeAI</text>
+<path d="M745 192H810" class="a"/>
+<rect x="810" y="145" width="190" height="95" rx="15" fill="#166534"/><text x="905" y="183" text-anchor="middle" class="t">Final Answer</text><text x="905" y="205" text-anchor="middle" class="s">Grounded response</text>
+</svg>
