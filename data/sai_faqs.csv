@@ -1,9 +1,0 @@
-prompt,response
-What is this project?,SAI-RAG is an educational question-answering assistant that retrieves relevant information from a local FAQ knowledge base before generating an answer.
-What technology is used?,The project uses Python, LangChain, FAISS, sentence-transformer embeddings, Google Gemini, and Streamlit.
-What is RAG?,RAG stands for Retrieval-Augmented Generation. It retrieves relevant documents and supplies them as context to a language model before generation.
-What is FAISS?,FAISS is a library for efficient similarity search over dense vectors. In this project it is used as the local vector store.
-How does SAI-RAG answer questions?,It embeds the FAQ knowledge base, retrieves the most relevant entries for a question, and sends that context to Gemini with instructions to answer only from the supplied context.
-What happens when the answer is not in the knowledge base?,The assistant is instructed to respond with I don't know rather than inventing an answer.
-Can I change the FAQ data?,Yes. Replace or extend data/sai_faqs.csv and rebuild the knowledge base.
-Can I deploy this project?,Yes. The Streamlit application can be deployed to a suitable hosting platform after configuring the Gemini API key as a secret.
