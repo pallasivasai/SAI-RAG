@@ -36,13 +36,13 @@ def load_vectorstore():
 
 
 @st.cache_resource(show_spinner=False)
-def _llm():
+def _llm(model_name: str):
     from langchain_google_genai import ChatGoogleGenerativeAI
 
     validate_settings()
 
     return ChatGoogleGenerativeAI(
-        model=GEMINI_MODEL,
+        model=model_name,
         google_api_key=GEMINI_API_KEY,
         temperature=0.1,
     )
@@ -93,7 +93,19 @@ USER QUESTION:
 {question}
 """
 
-    response = _llm().invoke(prompt)
+    try:
+        response = _llm(GEMINI_MODEL).invoke(prompt)
+    except Exception as exc:
+        message = str(exc).lower()
+        quota_error = "429" in message or "quota" in message or "rate limit" in message
+
+        if not quota_error or GEMINI_MODEL == "gemini-3.5-flash-lite":
+            raise
+
+        # Free-first fallback: try the lower-cost Flash-Lite model if another
+        # configured Gemini model has exhausted its quota.
+        response = _llm("gemini-3.5-flash-lite").invoke(prompt)
+
     content = response.content
     answer = content if isinstance(content, str) else str(content)
 
