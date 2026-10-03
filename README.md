@@ -1,79 +1,72 @@
 # SAI-RAG
 
-An end-to-end Retrieval-Augmented Generation (RAG) educational Q&A assistant inspired by the architecture demonstrated in the Codebasics Q&A project, rebuilt as an independent implementation using modern Gemini and LangChain tooling.
+# Codebasics Q&A: Question and Answer System Based on Google Palm LLM and Langchain for E-learning company  
 
-## 🚀 Streamlit deployment
+This is an end to end LLM project based on Google Palm and Langchain. We are building a Q&A system for an e-learning company called codebasics (website: codebasics.io). Codebasics sells data related courses and bootcamps. They have thousands of learners who uses discord server or email to ask questions. This system will provide a streamlit based user interface for students where they can ask questions and get answers. 
 
-Deploy this repository with Streamlit Community Cloud.
+![](codebasics_q_and_a.png)
 
-**Repository:** `pallasivasai/SAI-RAG`  
-**Branch:** `main`  
-**Entrypoint:** `app.py`
+## Project Highlights
 
-### Streamlit Cloud setup
+- Use a real CSV file of FAQs that Codebasics company is using right now. 
+- Their human staff will use this file to assist their course learners.
+- We will build an LLM based question and answer system that can reduce the workload of their human staff.
+- Students should be able to use this system to ask questions directly and get answers within seconds
 
-1. Open Streamlit Community Cloud and connect your GitHub account.
-2. Create an app from `pallasivasai/SAI-RAG`.
-3. Select branch `main` and entrypoint `app.py`.
-4. Open **Advanced settings → Secrets** and add:
+## You will learn following,
+  - Langchain + Google Palm: LLM based Q&A
+  - Streamlit: UI
+  - Huggingface instructor embeddings: Text embeddings
+  - FAISS: Vector databse
 
-```toml
-GEMINI_API_KEY = "your_gemini_api_key"
-GEMINI_MODEL = "gemini-3.8-flash"
-EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
-```
+## Installation
 
-5. Deploy. The app builds the FAISS index from the included CSV when you click **Create Knowledge Base**.
-
-Never commit your real Gemini API key to GitHub. Use Streamlit Cloud Secrets for deployment.
-
-## Architecture
-
-CSV knowledge base → document loading → embeddings → FAISS vector store → semantic retrieval → Gemini → grounded answer
-
-## Features
-
-- CSV-based FAQ knowledge base
-- Local FAISS vector database
-- Hugging Face sentence-transformer embeddings
-- Google Gemini generation
-- Context-grounded answers
-- Streamlit interface
-- Rebuild knowledge base from the UI
-- Retrieved source context shown with answers
-
-## Local setup
+1.Clone this repository to your local machine using:
 
 ```bash
-git clone https://github.com/pallasivasai/SAI-RAG.git
-cd SAI-RAG
-python -m venv venv
-# Windows
-venv\Scripts\activate
-# macOS/Linux
-# source venv/bin/activate
-pip install -r requirements.txt
+  git clone https://github.com/pallasivasai/SAI-RAG.git
 ```
-
-Copy `.env.example` to `.env`, add your Gemini API key, then:
+2.Navigate to the project directory:
 
 ```bash
-python create_vector_db.py
-streamlit run app.py
+  cd SAI-RAG
 ```
+3. Install the required dependencies using pip:
+
+```bash
+  pip install -r requirements.txt
+```
+4.Acquire an api key and put it in Streamlit secrets or .env file
+
+```bash
+  GOOGLE_API_KEY="your_api_key_here"
+```
+## Usage
+
+1. Run the Streamlit app by executing:
+```bash
+streamlit run main.py
+
+```
+
+2.The web app will open in your browser.
+
+- To create a knowledebase of FAQs, click on Create Knolwedge Base button. It will take some time before knowledgebase is created so please wait.
+
+- Once knowledge base is created you will see a directory called faiss_index in your current folder
+
+- Now you are ready to ask questions. Type your question in Question box and hit Enter
+
+## Sample Questions
+  - Do you guys provide internship and also do you offer EMI payments?
+  - Do you have javascript course?
+  - Should I learn power bi or tableau?
+  - I've a MAC computer. Can I use powerbi on it?
+  - I don't see power pivot. how can I enable it?
 
 ## Project Structure
 
-- `app.py` — Streamlit application
-- `rag_pipeline.py` — retrieval + Gemini generation
-- `create_vector_db.py` — creates FAISS index from CSV
-- `config.py` — environment/secret and path configuration
-- `data/sai_faqs.csv` — sample FAQ knowledge base
-- `requirements.txt` — dependencies
-- `.streamlit/config.toml` — Streamlit configuration
-- `.env.example` — local environment template
-- `.gitignore` — excludes secrets and generated artifacts
-
-## Attribution
-
-This project is an independent recreation of the general RAG Q&A workflow demonstrated in the Codebasics LangChain project. The original tutorial/project used Google PaLM and older LangChain APIs; SAI-RAG uses a modernized implementation rather than copying those legacy dependencies.
+- main.py: The main Streamlit application script.
+- langchain_helper.py: This has all the langchain code
+- requirements.txt: A list of required Python packages for the project.
+- .env: Configuration file for storing your Google API key.
