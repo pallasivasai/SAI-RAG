@@ -15,10 +15,7 @@ try:
 except Exception:
     GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "")
 
-EMBEDDING_MODEL = os.getenv(
-    "EMBEDDING_MODEL",
-    "sentence-transformers/all-MiniLM-L6-v2"
-)
+EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2")
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
 vectordb_file_path = "faiss_index"
 
@@ -30,28 +27,17 @@ instructor_embeddings = HuggingFaceEmbeddings(
 
 def create_vector_db():
     if not GOOGLE_API_KEY:
-        raise RuntimeError(
-            "GOOGLE_API_KEY is missing. Add it in Streamlit Cloud → Settings → Secrets."
-        )
+        raise RuntimeError("GOOGLE_API_KEY is missing. Add it in Streamlit Cloud → Settings → Secrets.")
 
-    loader = CSVLoader(
-        file_path="codebasics_faqs.csv",
-        source_column="prompt"
-    )
+    loader = CSVLoader(file_path="codebasics_faqs.csv", source_column="prompt")
     data = loader.load()
 
-    vectordb = FAISS.from_documents(
-        documents=data,
-        embedding=instructor_embeddings
-    )
-
+    vectordb = FAISS.from_documents(documents=data, embedding=instructor_embeddings)
     vectordb.save_local(vectordb_file_path)
 
 def get_qa_chain():
     if not GOOGLE_API_KEY:
-        raise RuntimeError(
-            "GOOGLE_API_KEY is missing. Add it in Streamlit Cloud → Settings → Secrets."
-        )
+        raise RuntimeError("GOOGLE_API_KEY is missing. Add it in Streamlit Cloud → Settings → Secrets.")
 
     vectordb = FAISS.load_local(
         vectordb_file_path,
@@ -69,10 +55,7 @@ CONTEXT: {context}
 
 QUESTION: {question}"""
 
-    PROMPT = PromptTemplate(
-        template=prompt_template,
-        input_variables=["context", "question"]
-    )
+    PROMPT = PromptTemplate(template=prompt_template, input_variables=["context", "question"])
 
     llm = ChatGoogleGenerativeAI(
         model=GEMINI_MODEL,
@@ -80,7 +63,7 @@ QUESTION: {question}"""
         temperature=0.1,
     )
 
-    chain = RetrievalQA.from_chain_type(
+    return RetrievalQA.from_chain_type(
         llm=llm,
         chain_type="stuff",
         retriever=retriever,
@@ -88,8 +71,6 @@ QUESTION: {question}"""
         return_source_documents=True,
         chain_type_kwargs={"prompt": PROMPT},
     )
-
-    return chain
 
 if __name__ == "__main__":
     create_vector_db()
