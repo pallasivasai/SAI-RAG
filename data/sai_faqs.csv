@@ -1,9 +1,15 @@
 prompt,response
 What is this project?,SAI-RAG is an educational question-answering assistant that retrieves relevant information from a local FAQ knowledge base before generating an answer.
-What technology is used?,The project uses Python, LangChain, FAISS, sentence-transformer embeddings, Google Gemini, and Streamlit.
+What technology is used?,The project uses Python LangChain FAISS sentence-transformer embeddings Google Gemini and Streamlit.
 What is RAG?,RAG stands for Retrieval-Augmented Generation. It retrieves relevant documents and supplies them as context to a language model before generation.
 What is FAISS?,FAISS is a library for efficient similarity search over dense vectors. In this project it is used as the local vector store.
-How does SAI-RAG answer questions?,It embeds the FAQ knowledge base, retrieves the most relevant entries for a question, and sends that context to Gemini with instructions to answer only from the supplied context.
-What happens when the answer is not in the knowledge base?,The assistant is instructed to respond with I don't know rather than inventing an answer.
-Can I change the FAQ data?,Yes. Replace or extend data/sai_faqs.csv and rebuild the knowledge base.
-Can I deploy this project?,Yes. The Streamlit application can be deployed to a suitable hosting platform after configuring the Gemini API key as a secret.
+What are embeddings?,Embeddings convert text into numerical vectors so the system can compare the meaning of a question with the meaning of knowledge-base entries.
+How does SAI-RAG answer questions?,It embeds the FAQ knowledge base retrieves the most relevant entries for a question and sends that context to Gemini with instructions to answer only from the supplied context.
+Does SAI-RAG answer course-related questions?,Yes. SAI-RAG can answer course and learning questions when the requested information is present in its knowledge base.
+What should I ask about the project?,You can ask about RAG FAISS embeddings LangChain Gemini Streamlit the knowledge base and how the application works.
+Does the current knowledge base list a cybersecurity course?,The current SAI-RAG knowledge base does not list a cybersecurity course. It only answers course-related questions when the relevant course information has been added to the knowledge base.
+Can I add course information?,Yes. Add your own course questions and answers to data/sai_faqs.csv and rebuild the FAISS knowledge base.
+What happens when an answer is not in the knowledge base?,The assistant says I don't have that information in the current knowledge base rather than inventing an answer.
+Why does the first question take longer?,The first request can take longer because the embedding model and language model need to initialize. They are cached afterward so subsequent questions can be faster.
+Can I deploy this project?,Yes. The Streamlit application can be deployed after configuring the Gemini API key as a secret.
+Is the Streamlit configuration folder required?,The .streamlit folder contains Streamlit configuration for this project and is intentionally kept in the repository.
