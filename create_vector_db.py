@@ -6,11 +6,19 @@ from langchain_community.vectorstores import FAISS
 from config import FAQ_FILE, VECTORSTORE_DIR, EMBEDDING_MODEL
 
 
+def get_embeddings():
+    from langchain_huggingface import HuggingFaceEmbeddings
+
+    return HuggingFaceEmbeddings(
+        model_name=EMBEDDING_MODEL,
+        model_kwargs={"device": "cpu"},
+        encode_kwargs={"normalize_embeddings": True},
+    )
+
+
 def build_vector_store() -> Path:
     if not FAQ_FILE.exists():
         raise FileNotFoundError(f"FAQ file not found: {FAQ_FILE}")
-
-    from langchain_huggingface import HuggingFaceEmbeddings
 
     loader = CSVLoader(
         file_path=str(FAQ_FILE),
@@ -18,15 +26,9 @@ def build_vector_store() -> Path:
     )
     documents = loader.load()
 
-    embeddings = HuggingFaceEmbeddings(
-        model_name=EMBEDDING_MODEL,
-        model_kwargs={"device": "cpu"},
-        encode_kwargs={"normalize_embeddings": True},
-    )
-
     vectorstore = FAISS.from_documents(
         documents=documents,
-        embedding=embeddings,
+        embedding=get_embeddings(),
     )
 
     VECTORSTORE_DIR.mkdir(parents=True, exist_ok=True)
