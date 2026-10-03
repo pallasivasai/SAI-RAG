@@ -1,72 +1,40 @@
 # SAI-RAG
 
-# Codebasics Q&A: Question and Answer System Based on Google Palm LLM and Langchain for E-learning company  
+An independent Streamlit RAG Q&A project using the same high-level project layout and workflow style as the Codebasics Q&A tutorial.
 
-This is an end to end LLM project based on Google Palm and Langchain. We are building a Q&A system for an e-learning company called codebasics (website: codebasics.io). Codebasics sells data related courses and bootcamps. They have thousands of learners who uses discord server or email to ask questions. This system will provide a streamlit based user interface for students where they can ask questions and get answers. 
+## Project structure
 
-![](codebasics_q_and_a.png)
+- `main.py` — Streamlit application
+- `langchain_helper.py` — LangChain, FAISS, embeddings, and Gemini logic
+- `codebasics_faqs.csv` — FAQ knowledge base
+- `google_palm_codebasics_q_and_a.ipynb` — project notebook
+- `faiss_index/` — generated FAISS vector database
+- `requirements.txt` — Python dependencies
+- `.env` — local environment template; never put a real API key in GitHub
 
-## Project Highlights
+## Streamlit Cloud
 
-- Use a real CSV file of FAQs that Codebasics company is using right now. 
-- Their human staff will use this file to assist their course learners.
-- We will build an LLM based question and answer system that can reduce the workload of their human staff.
-- Students should be able to use this system to ask questions directly and get answers within seconds
+Set the Streamlit entrypoint to `main.py`.
 
-## You will learn following,
-  - Langchain + Google Palm: LLM based Q&A
-  - Streamlit: UI
-  - Huggingface instructor embeddings: Text embeddings
-  - FAISS: Vector databse
+In Streamlit Cloud → Settings → Secrets, add:
 
-## Installation
-
-1.Clone this repository to your local machine using:
-
-```bash
-  git clone https://github.com/pallasivasai/SAI-RAG.git
+```toml
+GOOGLE_API_KEY = "your_gemini_api_key"
+GEMINI_MODEL = "gemini-3.8-flash"
+EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 ```
-2.Navigate to the project directory:
+
+Then deploy/reboot and click **Create Knowledgebase**.
+
+## Local usage
 
 ```bash
-  cd SAI-RAG
-```
-3. Install the required dependencies using pip:
-
-```bash
-  pip install -r requirements.txt
-```
-4.Acquire an api key and put it in Streamlit secrets or .env file
-
-```bash
-  GOOGLE_API_KEY="your_api_key_here"
-```
-## Usage
-
-1. Run the Streamlit app by executing:
-```bash
+pip install -r requirements.txt
 streamlit run main.py
-
 ```
 
-2.The web app will open in your browser.
+The application creates a local FAISS index from `codebasics_faqs.csv`, retrieves relevant FAQ entries, and generates a grounded answer with Gemini.
 
-- To create a knowledebase of FAQs, click on Create Knolwedge Base button. It will take some time before knowledgebase is created so please wait.
+## Attribution
 
-- Once knowledge base is created you will see a directory called faiss_index in your current folder
-
-- Now you are ready to ask questions. Type your question in Question box and hit Enter
-
-## Sample Questions
-  - Do you guys provide internship and also do you offer EMI payments?
-  - Do you have javascript course?
-  - Should I learn power bi or tableau?
-  - I've a MAC computer. Can I use powerbi on it?
-  - I don't see power pivot. how can I enable it?
-
-## Project Structure
-
-- main.py: The main Streamlit application script.
-- langchain_helper.py: This has all the langchain code
-- requirements.txt: A list of required Python packages for the project.
-- .env: Configuration file for storing your Google API key.
+This repository is an independent implementation inspired by the general RAG workflow demonstrated in the Codebasics LangChain project. It does not redistribute the original project's code, FAQ dataset, notebook, or image verbatim.
