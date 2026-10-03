@@ -1,10 +1,6 @@
 .env
-.venv/
-venv/
+faiss_index/
 __pycache__/
 *.py[cod]
-.DS_Store
-.pytest_cache/
-.faiss/
-vectorstore/
-faiss_index/
+.venv/
+venv/
