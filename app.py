@@ -11,7 +11,7 @@ st.set_page_config(
 )
 
 st.title("🧠 SAI-RAG")
-st.caption("Retrieval-Augmented Educational Q&A Assistant")
+st.caption("RAG-powered Course, Career & Technology Advisor")
 
 with st.sidebar:
     st.subheader("Knowledge Base")
@@ -30,12 +30,29 @@ with st.sidebar:
     else:
         st.warning("Knowledge base not created yet.")
 
-st.subheader("Ask a question")
+    st.divider()
+    st.subheader("Candidate Profile")
+    st.caption("Optional: add your profile so SAI-RAG can personalize course and technology suggestions.")
+
+    candidate_profile = st.text_area(
+        "Profile",
+        placeholder=(
+            "Example: MCA fresher, Python/SQL/JavaScript, interested in cybersecurity "
+            "and data, looking for entry-level roles."
+        ),
+        height=130,
+        label_visibility="collapsed",
+    )
+
+st.subheader("Ask SAI-RAG")
 
 with st.form("question_form", clear_on_submit=False):
     question = st.text_input(
         "Question",
-        placeholder="Example: What is RAG?",
+        placeholder=(
+            "Example: Should I buy this cybersecurity course, or should I learn "
+            "another technology for my career?"
+        ),
         label_visibility="collapsed",
     )
     submitted = st.form_submit_button("Ask SAI-RAG", use_container_width=True)
@@ -44,9 +61,12 @@ if submitted:
     if not question.strip():
         st.warning("Please enter a question.")
     else:
-        with st.spinner("Searching the knowledge base..."):
+        with st.spinner("Searching the knowledge base and preparing your answer..."):
             try:
-                result = answer_question(question)
+                result = answer_question(
+                    question,
+                    candidate_profile=candidate_profile,
+                )
 
                 st.subheader("Answer")
                 st.write(result["answer"])
