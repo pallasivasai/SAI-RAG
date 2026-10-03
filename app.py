@@ -37,11 +37,16 @@ with st.sidebar:
     candidate_profile = st.text_area(
         "Profile",
         placeholder=(
-            "Example: MCA fresher, Python/SQL/JavaScript, interested in cybersecurity "
-            "and data, looking for entry-level roles."
+            "Example: MCA background | Python, SQL, JavaScript | "
+            "interested in software, data and cybersecurity | entry-level roles"
         ),
-        height=130,
+        height=150,
         label_visibility="collapsed",
+    )
+
+    st.caption(
+        "For stronger guidance, include education, current skills, target role, "
+        "projects/certifications, experience and learning constraints."
     )
 
 st.subheader("Ask SAI-RAG")
