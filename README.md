@@ -6,6 +6,12 @@ SAI-RAG is a Python + Streamlit **Retrieval-Augmented Generation (RAG)** applica
 
 The main engineering focus is the **RAG pipeline**. Course, career, technology, and project guidance are use cases built on top of it.
 
+### Visual architecture
+
+![SAI-RAG Architecture](docs/architecture.svg)
+
+The diagram below is the visual version of the execution flow implemented by the current code.
+
 ---
 
 ## 🚀 What the current code actually does
