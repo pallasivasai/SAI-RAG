@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="470" viewBox="0 0 1200 470">
+<rect width="1200" height="470" rx="24" fill="#0b1020"/>
+<text x="60" y="55" fill="#f8fafc" font-family="Arial" font-size="28" font-weight="700">SAI-RAG — Query Processing Flow</text>
+<text x="60" y="82" fill="#94a3b8" font-family="Arial" font-size="15">Actual answer path in rag_pipeline.py</text>
+<style>.t{fill:#fff;font-family:Arial;font-weight:700;font-size:16px}.s{fill:#dbeafe;font-family:Arial;font-size:13px}.a{stroke:#94a3b8;stroke-width:3;fill:none;marker-end:url(#m)}</style>
+<defs><marker id="m" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#94a3b8"/></marker></defs>
+<rect x="55" y="150" width="165" height="90" rx="15" fill="#1d4ed8"/><text x="137" y="185" text-anchor="middle" class="t">User Question</text><text x="137" y="207" text-anchor="middle" class="s">+ optional profile</text>
+<path d="M220 195H275" class="a"/>
+<rect x="275" y="150" width="190" height="90" rx="15" fill="#4338ca"/><text x="370" y="185" text-anchor="middle" class="t">answer_question()</text><text x="370" y="207" text-anchor="middle" class="s">rag_pipeline.py</text>
+<path d="M465 195H520" class="a"/>
+<polygon points="590,145 660,195 590,245 520,195" fill="#7c2d12" stroke="#fb923c" stroke-width="2"/><text x="590" y="190" text-anchor="middle" class="t">Strong FAQ</text><text x="590" y="211" text-anchor="middle" class="s">match?</text>
+<path d="M590 245V315H320" class="a"/><text x="475" y="300" fill="#86efac" font-family="Arial" font-size="13">YES</text>
+<rect x="170" y="315" width="150" height="75" rx="14" fill="#166534"/><text x="245" y="348" text-anchor="middle" class="t">Direct FAQ</text><text x="245" y="370" text-anchor="middle" class="s">No Gemini call</text>
+<path d="M660 195H735" class="a"/><text x="675" y="178" fill="#fca5a5" font-family="Arial" font-size="13">NO</text>
+<rect x="735" y="150" width="190" height="90" rx="15" fill="#075985"/><text x="830" y="185" text-anchor="middle" class="t">FAISS Retrieval</text><text x="830" y="207" text-anchor="middle" class="s">similarity_search(k=4)</text>
+<path d="M925 195H980" class="a"/>
+<rect x="980" y="150" width="165" height="90" rx="15" fill="#5b21b6"/><text x="1062" y="185" text-anchor="middle" class="t">Gemini</text><text x="1062" y="207" text-anchor="middle" class="s">Grounded prompt</text>
+<path d="M1062 240V315H925" class="a"/>
+<rect x="760" y="315" width="250" height="75" rx="14" fill="#1e293b" stroke="#64748b"/><text x="885" y="348" text-anchor="middle" class="t">Final AI Response</text><text x="885" y="370" text-anchor="middle" class="s">+ retrieved sources</text>
+</svg>
