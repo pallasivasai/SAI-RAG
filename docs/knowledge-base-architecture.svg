@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420">
+<rect width="1200" height="420" rx="24" fill="#0b1020"/>
+<text x="60" y="55" fill="#f8fafc" font-family="Arial" font-size="28" font-weight="700">SAI-RAG — Knowledge Base Creation</text>
+<text x="60" y="82" fill="#94a3b8" font-family="Arial" font-size="15">Actual flow implemented by create_vector_db.py</text>
+<style>.b{stroke:#334155;stroke-width:2}.t{fill:#fff;font-family:Arial;font-weight:700;font-size:16px}.s{fill:#dbeafe;font-family:Arial;font-size:13px}.a{stroke:#94a3b8;stroke-width:3;fill:none;marker-end:url(#m)}</style>
+<defs><marker id="m" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#94a3b8"/></marker></defs>
+<rect x="55" y="145" width="180" height="105" rx="16" fill="#0f766e" class="b"/><text x="145" y="180" text-anchor="middle" class="t">sai_faqs.csv</text><text x="145" y="204" text-anchor="middle" class="s">FAQ knowledge base</text><text x="145" y="225" text-anchor="middle" class="s">prompt + response</text>
+<path d="M235 197H300" class="a"/>
+<rect x="300" y="145" width="180" height="105" rx="16" fill="#155e75" class="b"/><text x="390" y="180" text-anchor="middle" class="t">CSVLoader</text><text x="390" y="204" text-anchor="middle" class="s">LangChain</text><text x="390" y="225" text-anchor="middle" class="s">Documents</text>
+<path d="M480 197H545" class="a"/>
+<rect x="545" y="145" width="190" height="105" rx="16" fill="#0f766e" class="b"/><text x="640" y="180" text-anchor="middle" class="t">HuggingFace</text><text x="640" y="204" text-anchor="middle" class="s">all-MiniLM-L6-v2</text><text x="640" y="225" text-anchor="middle" class="s">Text → vectors</text>
+<path d="M735 197H800" class="a"/>
+<rect x="800" y="145" width="170" height="105" rx="16" fill="#0369a1" class="b"/><text x="885" y="180" text-anchor="middle" class="t">FAISS</text><text x="885" y="204" text-anchor="middle" class="s">Vector index</text><text x="885" y="225" text-anchor="middle" class="s">vectorstore/</text>
+<path d="M970 197H1035" class="a"/>
+<rect x="1035" y="145" width="110" height="105" rx="16" fill="#334155" class="b"/><text x="1090" y="180" text-anchor="middle" class="t">Ready</text><text x="1090" y="204" text-anchor="middle" class="s">for</text><text x="1090" y="225" text-anchor="middle" class="s">RAG</text>
+</svg>
