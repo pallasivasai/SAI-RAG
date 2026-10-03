@@ -1,7 +1,12 @@
+import csv
+import re
+from difflib import SequenceMatcher
+
 import streamlit as st
 from langchain_community.vectorstores import FAISS
 
 from config import (
+    FAQ_FILE,
     GEMINI_API_KEY,
     GEMINI_MODEL,
     EMBEDDING_MODEL,
@@ -21,12 +26,73 @@ def _embeddings():
     )
 
 
+@st.cache_data(show_spinner=False)
+def _faq_rows():
+    if not FAQ_FILE.exists():
+        return []
+
+    with FAQ_FILE.open("r", encoding="utf-8", newline="") as file:
+        return list(csv.DictReader(file))
+
+
+def _normalize(text: str) -> str:
+    return re.sub(r"[^a-z0-9]+", " ", text.lower()).strip()
+
+
+def _direct_faq_answer(question: str):
+    normalized_question = _normalize(question)
+    if not normalized_question:
+        return None
+
+    best_row = None
+    best_score = 0.0
+
+    for row in _faq_rows():
+        prompt = row.get("prompt", "").strip()
+        response = row.get("response", "").strip()
+        if not prompt or not response:
+            continue
+
+        normalized_prompt = _normalize(prompt)
+
+        if normalized_question == normalized_prompt:
+            return {"answer": response, "sources": [f"{prompt}: {response}"]}
+
+        score = SequenceMatcher(None, normalized_question, normalized_prompt).ratio()
+
+        question_words = set(normalized_question.split())
+        prompt_words = set(normalized_prompt.split())
+        if question_words and prompt_words:
+            overlap = len(question_words & prompt_words) / len(question_words | prompt_words)
+            score = max(score, overlap)
+
+        if score > best_score:
+            best_score = score
+            best_row = row
+
+    # Only use the deterministic FAQ response for a strong match.
+    if best_row and best_score >= 0.78:
+        prompt = best_row["prompt"].strip()
+        response = best_row["response"].strip()
+        return {"answer": response, "sources": [f"{prompt}: {response}"]}
+
+    return None
+
+
 @st.cache_resource(show_spinner=False)
 def load_vectorstore():
     if not VECTORSTORE_DIR.exists():
         raise FileNotFoundError(
             "Knowledge base is not created yet. Click 'Create Knowledge Base' first."
         )
+
+    # Streamlit Cloud can restart with an old runtime vectorstore. Rebuild it
+    # automatically whenever the FAQ CSV is newer than the FAISS index.
+    index_file = VECTORSTORE_DIR / "index.faiss"
+    if FAQ_FILE.exists() and index_file.exists():
+        if FAQ_FILE.stat().st_mtime > index_file.stat().st_mtime:
+            from create_vector_db import build_vector_store
+            build_vector_store()
 
     return FAISS.load_local(
         str(VECTORSTORE_DIR),
@@ -50,6 +116,7 @@ def _llm(model_name: str):
 
 def clear_rag_cache():
     _embeddings.clear()
+    _faq_rows.clear()
     load_vectorstore.clear()
     _llm.clear()
 
@@ -63,6 +130,12 @@ def answer_question(
 
     if not question.strip():
         raise ValueError("Question cannot be empty.")
+
+    # Exact/near-exact FAQ questions do not need Gemini. This makes common
+    # course/project questions fast and avoids consuming free-tier requests.
+    direct_answer = _direct_faq_answer(question)
+    if direct_answer:
+        return direct_answer
 
     vectorstore = load_vectorstore()
 
@@ -106,6 +179,9 @@ when supported by the context. Do not invent course-specific facts.
 For future-technology questions, personalize the discussion to the candidate
 profile and explain trade-offs, prerequisites, skill overlap, project value, and
 a practical learning path. Do not declare one technology universally best.
+
+If the context contains a direct answer to the user's question, answer from
+that context instead of saying that the information is missing.
 
 If a requested course-specific or technology-specific fact is not in the
 knowledge base, say:
