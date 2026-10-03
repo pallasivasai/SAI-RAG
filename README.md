@@ -100,9 +100,13 @@ FAISS.from_documents()
 
 The CSV `prompt` column is used as the `source_column` by `CSVLoader`.
 
+![Knowledge Base Creation Architecture](docs/knowledge-base-architecture.svg)
+
 ---
 
 ## 🔎 Actual question-processing flow
+
+![Query Processing Flow](docs/query-processing-flow.svg)
 
 ```text
 User Question
@@ -179,6 +183,8 @@ Compare against FAQ prompts
 
 The matching logic uses text normalization, `SequenceMatcher`, word overlap, and a **0.78** strong-match threshold.
 
+![Direct FAQ Matching](docs/direct-faq-matching.svg)
+
 ---
 
 ## 👤 Candidate Profile flow
@@ -211,6 +217,8 @@ Question + Candidate Profile
 ```
 
 The profile is additional context. It does not replace the knowledge base.
+
+![Candidate Profile Flow](docs/candidate-profile-flow.svg)
 
 ---
 
@@ -264,11 +272,15 @@ Generated Answer
 
 The prompt instructs Gemini to use the supplied knowledge-base context for factual claims and avoid inventing unsupported prices, discounts, certificates, placement guarantees, salaries, dates, links, or policies.
 
+![Gemini Generation Flow](docs/gemini-generation-flow.svg)
+
 ---
 
 ## 🔄 Automatic FAISS refresh
 
 The current code checks whether the FAQ CSV is newer than the FAISS index.
+
+![Automatic FAISS Refresh](docs/vectorstore-refresh.svg)
 
 ```text
 Load vector store
@@ -295,6 +307,8 @@ Gemini client    → @st.cache_resource
 ```
 
 `clear_rag_cache()` is called after creating the knowledge base so updated data can be used.
+
+![Streamlit Caching Architecture](docs/caching-architecture.svg)
 
 ---
 
